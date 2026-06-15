@@ -3,7 +3,13 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.user import User
-from app.schemas.transaction import SpendRequest, TransactionResponse, TransferRequest
+from app.schemas.transaction import (
+    DepositRequest,
+    SpendRequest,
+    TransactionResponse,
+    TransferRequest,
+    WithdrawRequest,
+)
 from app.services.transaction_service import TransactionService
 from app.utils.security import get_current_user
 
@@ -39,6 +45,26 @@ def spend(
 ):
     service = TransactionService(db)
     return service.spend(current_user, data)
+
+
+@router.post("/deposit", response_model=TransactionResponse, summary="Deposit money into an account")
+def deposit(
+    data: DepositRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = TransactionService(db)
+    return service.deposit(current_user, data)
+
+
+@router.post("/withdraw", response_model=TransactionResponse, summary="Withdraw money from an account")
+def withdraw(
+    data: WithdrawRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = TransactionService(db)
+    return service.withdraw(current_user, data)
 
 
 @router.post("/transfer", response_model=list[TransactionResponse], summary="Transfer money between your accounts")

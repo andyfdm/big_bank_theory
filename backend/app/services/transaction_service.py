@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.models.account import Account
 from app.models.transaction import Transaction, TransactionType
 from app.models.user import User
-from app.schemas.transaction import SpendRequest, TransferRequest
+from app.schemas.transaction import DepositRequest, SpendRequest, TransferRequest, WithdrawRequest
 
 
 class TransactionService:
@@ -72,6 +72,59 @@ class TransactionService:
             amount=-data.amount,
             description=data.description,
             transaction_type=TransactionType.SPEND,
+        )
+        self.db.add(transaction)
+        self.db.commit()
+        self.db.refresh(transaction)
+        return transaction
+
+    def deposit(self, user: User, data: DepositRequest) -> Transaction:
+        account = (
+            self.db.query(Account)
+            .filter(Account.id == data.account_id, Account.user_id == user.id)
+            .first()
+        )
+        if not account:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Account not found",
+            )
+
+        account.balance += data.amount
+        transaction = Transaction(
+            account_id=account.id,
+            amount=data.amount,
+            description=data.description,
+            transaction_type=TransactionType.DEPOSIT,
+        )
+        self.db.add(transaction)
+        self.db.commit()
+        self.db.refresh(transaction)
+        return transaction
+
+    def withdraw(self, user: User, data: WithdrawRequest) -> Transaction:
+        account = (
+            self.db.query(Account)
+            .filter(Account.id == data.account_id, Account.user_id == user.id)
+            .first()
+        )
+        if not account:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Account not found",
+            )
+        if account.balance < data.amount:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Insufficient funds",
+            )
+
+        account.balance -= data.amount
+        transaction = Transaction(
+            account_id=account.id,
+            amount=-data.amount,
+            description=data.description,
+            transaction_type=TransactionType.WITHDRAW,
         )
         self.db.add(transaction)
         self.db.commit()

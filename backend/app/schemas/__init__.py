@@ -11,9 +11,11 @@ from app.schemas.account import (
     PayIdUpdate,
 )
 from app.schemas.transaction import (
+    DepositRequest,
     SpendRequest,
     TransactionResponse,
     TransferRequest,
+    WithdrawRequest,
 )
 from app.schemas.payid import PayIdLookupRequest, PayIdLookupResponse, PayIdPaymentRequest
 from app.schemas.home import HomeResponse
@@ -28,6 +30,8 @@ __all__ = [
     "AccountResponse",
     "PayIdUpdate",
     "SpendRequest",
+    "DepositRequest",
+    "WithdrawRequest",
     "TransactionResponse",
     "TransferRequest",
     "PayIdLookupRequest",

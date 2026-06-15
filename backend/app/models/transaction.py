@@ -10,6 +10,8 @@ from app.database import Base
 
 class TransactionType(str, enum.Enum):
     SPEND = "spend"
+    DEPOSIT = "deposit"
+    WITHDRAW = "withdraw"
     TRANSFER_OUT = "transfer_out"
     TRANSFER_IN = "transfer_in"
     PAYID_OUT = "payid_out"

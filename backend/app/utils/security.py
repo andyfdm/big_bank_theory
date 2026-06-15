@@ -13,7 +13,7 @@ from app.database import get_db
 from app.models.token_blacklist import TokenBlacklist
 from app.models.user import User
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 def validate_password(password: str) -> None:

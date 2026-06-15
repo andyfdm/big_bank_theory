@@ -12,6 +12,18 @@ class SpendRequest(BaseModel):
     description: str = Field(min_length=1, max_length=500)
 
 
+class DepositRequest(BaseModel):
+    account_id: int
+    amount: Decimal = Field(gt=0)
+    description: str = Field(min_length=1, max_length=500)
+
+
+class WithdrawRequest(BaseModel):
+    account_id: int
+    amount: Decimal = Field(gt=0)
+    description: str = Field(min_length=1, max_length=500)
+
+
 class TransferRequest(BaseModel):
     from_account_id: int
     to_account_id: int
