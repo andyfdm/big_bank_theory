@@ -1,0 +1,6 @@
+.header-bar {
+    display: flex;
+    justify-content: space-between;
+    padding: 0rem 3rem;
+    border-bottom: 1px solid #ccc;
+}
