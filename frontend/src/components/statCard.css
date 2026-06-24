@@ -1,0 +1,10 @@
+.stat-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    border: 1px solid var(--white-border-color);
+    width: 20rem;
+    flex-shrink: 0;
+    padding: 1rem;
+
+}
