@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/dashboard';
 import Profile from './pages/Profile';
+import Account from './pages/Account'
 
 // Components
 import HeaderBar from './components/headerBar';
@@ -104,7 +105,8 @@ function App() {
       <ThemeProvider theme={lightTheme}>
         <CssBaseline />
         <HeaderBar />
-        <Dashboard />
+        {/* <Dashboard /> */}
+        <Account/>
         {/* <Profile /> */}
         {/* <Login/> */}
       </ThemeProvider>
