@@ -17,7 +17,7 @@ function HeaderBar() {
     // const { user, logout } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     // const location = useLocation();
 
     const handleMenuOpen = (event) => {
@@ -41,7 +41,7 @@ function HeaderBar() {
 
     const handleLogout = () => {
         handleMenuClose();
-        logout();
+        // logout();
         navigate('/login');
     };
 

@@ -22,7 +22,7 @@ function Signup() {
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { signup, loading } = useAuth();
+  // const { signup, loading } = useAuth();
 
   const handleChange = (e) => {
     setFormData({
@@ -92,7 +92,7 @@ function Signup() {
             onChange={handleChange}
             margin="normal"
             variant="outlined"
-            disabled={loading}
+            // disabled={loading}
             placeholder="John Doe"
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -109,7 +109,7 @@ function Signup() {
             onChange={handleChange}
             margin="normal"
             variant="outlined"
-            disabled={loading}
+            // disabled={loading}
             placeholder="your@email.com"
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -125,7 +125,7 @@ function Signup() {
             onChange={handleChange}
             margin="normal"
             variant="outlined"
-            disabled={loading}
+            // disabled={loading}
             placeholder="+1234567890"
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -142,7 +142,7 @@ function Signup() {
             onChange={handleChange}
             margin="normal"
             variant="outlined"
-            disabled={loading}
+            // disabled={loading}
             placeholder="••••••••"
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -159,7 +159,7 @@ function Signup() {
             onChange={handleChange}
             margin="normal"
             variant="outlined"
-            disabled={loading}
+            // disabled={loading}
             placeholder="••••••••"
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -173,7 +173,8 @@ function Signup() {
             variant="contained"
             color="primary"
             type="submit"
-            disabled={loading}
+            // disabled={loading}
+            onClick={() => navigate('/dashboard')}
             sx={{
               mt: 3,
               mb: 2,
@@ -184,7 +185,8 @@ function Signup() {
               '&:hover': { backgroundColor: '#0e7490' }
             }}
           >
-            {loading ? <CircularProgress size={24} /> : 'Create Account'}
+            {/* {loading ? <CircularProgress size={24} /> : 'Create Account'} */}
+            Create account
           </Button>
         </form>
 

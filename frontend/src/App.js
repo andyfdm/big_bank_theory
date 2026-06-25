@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import {BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import './App.css';
@@ -101,16 +101,22 @@ function App() {
     //     <AppContent />
     //   </BrowserRouter>
     // </AuthProvider>
-    <>
+    <BrowserRouter>
       <ThemeProvider theme={lightTheme}>
         <CssBaseline />
         <HeaderBar />
-        {/* <Dashboard /> */}
-        <Account/>
-        {/* <Profile /> */}
-        {/* <Login/> */}
+        <main>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/account" element={<Account />} />
+          </Routes>
+        </main>
       </ThemeProvider>
-    </>
+    </BrowserRouter>
 
   );
 }

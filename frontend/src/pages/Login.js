@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   TextField,
@@ -16,7 +16,7 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   // const { login, loading } = useAuth();
 
   const handleSubmit = async (e) => {
@@ -102,6 +102,7 @@ function Login() {
               variant="contained"
               color="primary"
               type="submit"
+              onClick={() => navigate('/dashboard')}
               // disabled={loading}
               sx={{
                 py: 1.5,
@@ -112,6 +113,7 @@ function Login() {
               }}
             >
               {/* {loading ? <CircularProgress size={24} /> : 'Login'} */}
+              Login
             </Button>
             <Button
               fullWidth

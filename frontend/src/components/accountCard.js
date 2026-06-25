@@ -1,4 +1,5 @@
 import AddIcon from '@mui/icons-material/Add';
+import { useNavigate } from 'react-router-dom';
 import { Box, Typography } from '@mui/material';
 import './accountCard.css';
 
@@ -22,6 +23,8 @@ function AccountCard(props) {
         const type = typeMap[name] || Object.values(accountColors)[index % 5];
         return Object.values(accountColors)[index % 5];
     };
+
+    const navigate = useNavigate();
 
     if (props.type === "new") {
         return (
@@ -49,7 +52,9 @@ function AccountCard(props) {
     } else {
         const cardColor = getColorForAccount(props.name, props.index);
         return (
-            <Box className="account-card" sx={{
+            <Box className="account-card" 
+            onClick={() => navigate('/account')}
+            sx={{
                 background: cardColor,
                 borderRadius: '12px',
                 padding: '24px',
@@ -59,6 +64,7 @@ function AccountCard(props) {
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                cursor: 'pointer'
             }}>
                 <Typography variant="body2" sx={{ opacity: 0.9 }}>{props.name}</Typography>
                 <Typography variant="h5" sx={{ fontSize: '24px', fontWeight: 700 }}>${Number(props.balance).toFixed(2)}</Typography>

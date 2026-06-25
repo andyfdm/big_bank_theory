@@ -5,6 +5,7 @@ import PayCard from "../components/payCard";
 import StatCard from "../components/statCard";
 import PaymentHistory from "../components/paymentHistory";
 import AlertsComponent from "../components/AlertsComponent";
+import { useNavigate } from 'react-router-dom';
 // import { useAuth } from '../context/AuthContext';
 import './dashboard.css';
 

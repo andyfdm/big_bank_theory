@@ -68,26 +68,11 @@ function Profile() {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 4 }}>
-        <MuiLink
-          onClick={() => navigate('/dashboard')}
-          sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: '#0891b2', cursor: 'pointer', textDecoration: 'none' }}
-        >
-          <ArrowBackIcon fontSize="small" />
-          Back to dashboard
-        </MuiLink>
-      </Box>
 
       {/* Title */}
-      <Box sx={{ textAlign: 'center', mb: 4 }}>
+      <Box sx={{ textAlign: 'center', mb: 4, mt: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>Profile settings</Typography>
         <Typography variant="body2" sx={{ color: '#999' }}>Manage your personal information and security</Typography>
       </Box>

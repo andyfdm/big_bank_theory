@@ -3,8 +3,11 @@ import PaymentHistory from '../components/paymentHistory';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Link as RouterLink } from 'react-router-dom';
+
 
 function Account(props) {
+
     // mock data
     const isPositive = true;
     const change = 4;
@@ -24,7 +27,7 @@ function Account(props) {
             
             <Container maxWidth="lg" sx={{py: 4}}>
 
-                <Link href="#" sx={{display: "flex", gap: 1, color: "#91D0D7"}}>
+                <Link component={RouterLink} to="/dashboard" sx={{display: "flex", gap: 1, color: "#91D0D7", cursor: "pointer"}}>
                     <ArrowBackIcon/>
                     Back to dashboard
                 </Link>
