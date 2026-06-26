@@ -8,9 +8,14 @@ import AlertsComponent from "../components/AlertsComponent";
 import { useNavigate } from 'react-router-dom';
 // import { useAuth } from '../context/AuthContext';
 import './dashboard.css';
+import { useState } from 'react';
+import PayPopup from '../components/PayPopup';
+import CreateAccountPopup from '../components/CreateAccountPopup';
 
 function Dashboard() {
     // const { user } = useAuth();
+    const [payPopupOpen, setPayPopupOpen] = useState(false);
+    const [CreateAccountPopupOpen, setCreateAccountPopupOpen] = useState(false);
 
     // Mock data for stats
     const stats = [
@@ -34,10 +39,12 @@ function Dashboard() {
                 {/* Pay Actions */}
                 <Box sx={{ mb: 2 }}>
                     <div className="pay-actions">
-                        <PayCard name="Pay via account" icon="bsb" />
-                        <PayCard name="Pay via PayID" icon="bsb" />
-                        <PayCard name="Transfer between accounts" icon="bsb" />
+                        <PayCard name="Pay via account" icon="bsb" onClick={() => setPayPopupOpen(true)}/>
+                            
+                        <PayCard name="Pay via PayID" icon="bsb" onClick={() => setPayPopupOpen(true)}/>
+                        <PayCard name="Transfer between accounts" icon="bsb" onClick={() => setPayPopupOpen(true)}/>
                     </div>
+                    <PayPopup open={payPopupOpen} onClose={() => setPayPopupOpen(false)} />
                 </Box>
 
                 {/* Accounts Section */}
@@ -59,8 +66,9 @@ function Dashboard() {
                         <AccountCard key='1' name='checking' balance='5000' index='2'/> 
                         <AccountCard key='1' name='checking' balance='5000' index='2'/> 
                         <AccountCard key='1' name='checking' balance='5000' index='2'/> 
-                        <AccountCard type="new" />
+                        <AccountCard type="new" onClick={() => setCreateAccountPopupOpen(true)}/>
                     </Box>
+                    <CreateAccountPopup open={CreateAccountPopupOpen} onClose={() => setCreateAccountPopupOpen(false)} />
                 </Box>
 
                 {/* Statistics Cards */}

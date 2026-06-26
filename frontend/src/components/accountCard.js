@@ -1,7 +1,6 @@
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography } from '@mui/material';
-import './accountCard.css';
+import { Box, Typography, CardActionArea, Card } from '@mui/material';
 
 function AccountCard(props) {
     const accountColors = {
@@ -28,26 +27,28 @@ function AccountCard(props) {
 
     if (props.type === "new") {
         return (
-            <Box className="account-card-new" sx={{
-                background: 'white',
-                border: '2px dashed #e5e7eb',
-                borderRadius: '12px',
-                padding: '24px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: '140px',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                    borderColor: '#1976d2',
-                    backgroundColor: '#f0f7ff'
-                }
-            }}>
-                <AddIcon sx={{ fontSize: 32, color: '#1976d2', mb: 1 }} />
-                <Typography variant="body2" sx={{ color: '#666' }}>Add new account</Typography>
-            </Box>
+            <Card sx={{
+                        minWidth: 200,
+                        background: 'white',
+                        border: '2px dashed #e5e7eb',
+                        borderRadius: '12px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minHeight: '140px',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                            borderColor: '#1976d2',
+                            backgroundColor: '#f0f7ff'
+                        }
+                    }}>
+                <CardActionArea onClick={props.onClick} sx={{display: 'flex', flexDirection: 'column', width: '100%', height: '100%'}}>
+                    <AddIcon sx={{ fontSize: 32, color: '#1976d2', mb: 1 }} />
+                    <Typography variant="body2" sx={{ color: '#666' }}>Add new account</Typography>
+                </CardActionArea>
+            </Card>
         );
     } else {
         const cardColor = getColorForAccount(props.name, props.index);
@@ -55,6 +56,7 @@ function AccountCard(props) {
             <Box className="account-card" 
             onClick={() => navigate('/account')}
             sx={{
+                minWidth: 200,
                 background: cardColor,
                 borderRadius: '12px',
                 padding: '24px',

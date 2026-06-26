@@ -1,15 +1,15 @@
-import Box from '@mui/material/Box'
+import { Card, CardActionArea, Typography } from '@mui/material'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 
-import './payCard.css';
-
-function PayCard(props) {
+function PayCard({name, onClick, icon}) {
     return (
-        <Box sx={{display: 'flex', borderRadius: '12px', border: '1px solid #f0f0f0', padding: 1.5}}>
-            {/* bsb, payid, transfer */}
-            {props.icon === "bsb" && <AccountBalanceWalletIcon />}
-            <p>{props.name}</p>
-        </Box>
+        <Card sx={{borderRadius: '12px', border: '1px solid #f0f0f0', cursor: 'pointer'}}>
+            <CardActionArea onClick={onClick} sx={{padding: 1.5, display: 'flex'}}>
+                {/* bsb, payid, transfer */}
+                {icon === "bsb" && <AccountBalanceWalletIcon />}
+                <Typography variant='p' sx={{ml: 1}}>{name}</Typography>
+            </CardActionArea>
+        </Card>
     );
 }
 
