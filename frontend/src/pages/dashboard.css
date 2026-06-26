@@ -1,0 +1,64 @@
+@import "../variables.css";
+
+.account-cards {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    max-width: 80vw;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 1rem 2rem 1rem 0rem;
+    box-shadow: inset -20px 0 8px -8px var(--white-border-color);
+}
+
+.dashboard {
+    padding: 0rem 4rem;
+}
+
+.pay-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    padding: 2rem 0rem;
+}
+
+.stat-cards {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 2rem 0rem;
+}
+
+.recent-transactions {
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    border: 1px solid var(--white-border-color);
+    padding: 1rem 0rem;
+    margin-bottom: 2rem;
+    min-width: 65%;
+}
+
+.recent-transactions-header {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid var(--white-border-color);
+    padding: 0rem 2rem 1rem 2rem;
+}
+
+.security-alerts {
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    border: 1px solid var(--white-border-color);
+    padding: 1rem 0rem;
+    min-width: 30%;
+    margin-bottom: 2rem;
+}
+
+.dashboard-bottom {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
