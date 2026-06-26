@@ -3,7 +3,6 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 import SendIcon from '@mui/icons-material/Send';
-import "./paymentHistory.css";
 
 const getIconAndColor = (type) => {
     const icons = {

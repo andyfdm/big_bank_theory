@@ -1,7 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
-import "./statCard.css";
 
 function StatCard({ title = 'Total Balance', amount = '$11,385.32', change = '+4%', isPositive = true }) {
     return (

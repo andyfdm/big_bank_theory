@@ -17,7 +17,6 @@ import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 // import { useAuth } from '../context/AuthContext';
-import './Profile.css';
 
 function Profile() {
   // const { user, updateProfile, logout } = useAuth();
