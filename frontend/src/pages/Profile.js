@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Box,
@@ -15,13 +14,11 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 // import { useAuth } from '../context/AuthContext';
 
 function Profile() {
   // const { user, updateProfile, logout } = useAuth();
   const user = {}
-  // const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
