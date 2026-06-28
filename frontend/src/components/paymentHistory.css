@@ -1,7 +1,0 @@
-.payment-history {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 1rem 2rem;
-    border-bottom: 1px solid var(--white-border-color);
-}

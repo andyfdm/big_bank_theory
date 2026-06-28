@@ -105,7 +105,7 @@ function App() {
       <ThemeProvider theme={lightTheme}>
         <CssBaseline />
         <HeaderBar />
-        <main>
+        <main style={{marginTop: 50}}>
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/login" element={<Login />} />

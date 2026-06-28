@@ -7,10 +7,10 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import Box from '@mui/material/Box';
-import './headerBar.css';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ContrastIcon from '@mui/icons-material/Contrast';
+import { AppBar } from '@mui/material';
 // import { useAuth } from '../context/AuthContext';
 
 function HeaderBar() {
@@ -46,12 +46,18 @@ function HeaderBar() {
     };
 
     return (
-        <header className="header-bar">
+        <AppBar sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                px: 2,
+                backgroundColor: 'white'
+            }}>
             <Button 
                 onClick={handleDashboardClick}
                 sx={{ 
                     textDecoration: 'none',
-                    color: 'inherit',
+                    color: 'black',
                     fontSize: '24px',
                     fontWeight: 700,
                     '&:hover': { opacity: 0.8 }
@@ -85,7 +91,7 @@ function HeaderBar() {
                 <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
-        </header>
+        </AppBar>
     );
 }
 
