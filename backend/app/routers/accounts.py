@@ -3,11 +3,31 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.user import User
-from app.schemas.account import AccountCreate, AccountResponse, PayIdUpdate
+from app.schemas.account import AccountCreate, AccountLookupRequest, AccountLookupResponse, AccountResponse
 from app.services.account_service import AccountService
 from app.utils.security import get_current_user
 
 router = APIRouter(prefix="/accounts", tags=["Accounts"])
+
+
+@router.post("/lookup", response_model=AccountLookupResponse, summary="Look up a recipient account by BSB and account number")
+def lookup_account(
+    data: AccountLookupRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = AccountService(db)
+    return service.lookup_account(current_user, data)
+
+
+@router.get("/{account_id}", response_model=AccountResponse, summary="Get a single account")
+def get_account(
+    account_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = AccountService(db)
+    return service.get_account_for_user(current_user, account_id)
 
 
 @router.get("", response_model=list[AccountResponse], summary="List all accounts for the logged-in user")
@@ -39,12 +59,11 @@ def delete_account(
     service.delete_account(current_user, account_id)
 
 
-@router.put("/{account_id}/payid", response_model=AccountResponse, summary="Link a PayID phone number to an account")
+@router.put("/{account_id}/payid", response_model=AccountResponse, summary="Link profile phone number as PayID to an account")
 def set_payid(
     account_id: int,
-    data: PayIdUpdate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     service = AccountService(db)
-    return service.set_payid(current_user, account_id, data)
+    return service.set_payid(current_user, account_id)

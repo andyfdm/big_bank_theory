@@ -9,7 +9,7 @@ import {
   CircularProgress,
   Link as MuiLink
 } from '@mui/material';
-// import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import './auth.css';
 
 function Login() {
@@ -17,7 +17,7 @@ function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  // const { login, loading } = useAuth();
+  const { login, loading } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,7 +31,7 @@ function Login() {
     const result = await login(email, password);
     
     if (result.success) {
-      navigate('/verify-2fa');
+      navigate('/dashboard');
     } else {
       setError(result.error || 'Login failed');
     }
@@ -65,7 +65,7 @@ function Login() {
             onChange={(e) => setEmail(e.target.value)}
             margin="normal"
             variant="outlined"
-            // disabled={loading}
+            disabled={loading}
             placeholder="your@email.com"
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -81,7 +81,7 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
             margin="normal"
             variant="outlined"
-            // disabled={loading}
+            disabled={loading}
             placeholder="••••••••"
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -102,8 +102,7 @@ function Login() {
               variant="contained"
               color="primary"
               type="submit"
-              onClick={() => navigate('/dashboard')}
-              // disabled={loading}
+              disabled={loading}
               sx={{
                 py: 1.5,
                 textTransform: 'none',
@@ -112,14 +111,13 @@ function Login() {
                 '&:hover': { backgroundColor: '#0e7490' }
               }}
             >
-              {/* {loading ? <CircularProgress size={24} /> : 'Login'} */}
-              Login
+              {loading ? <CircularProgress size={24} /> : 'Login'}
             </Button>
             <Button
               fullWidth
               variant="outlined"
               onClick={() => navigate('/signup')}
-              // disabled={loading}
+              disabled={loading}
               sx={{
                 py: 1.5,
                 textTransform: 'none',

@@ -2,10 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.database import Base, engine
-from app.routers import accounts, auth, home, payid, transactions
+from app.database import Base, engine, migrate_schema
+from app.routers import accounts, auth, home, payid, transactions, users
 
 Base.metadata.create_all(bind=engine)
+migrate_schema()
 
 app = FastAPI(
     title=settings.app_name,
@@ -28,6 +29,7 @@ app.include_router(home.router)
 app.include_router(accounts.router)
 app.include_router(transactions.router)
 app.include_router(payid.router)
+app.include_router(users.router)
 
 
 @app.get("/health", tags=["Health"])

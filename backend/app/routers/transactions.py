@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User
 from app.schemas.transaction import (
+    AccountPaymentRequest,
     DepositRequest,
     SpendRequest,
     TransactionResponse,
@@ -65,6 +66,16 @@ def withdraw(
 ):
     service = TransactionService(db)
     return service.withdraw(current_user, data)
+
+
+@router.post("/pay-account", response_model=list[TransactionResponse], summary="Pay a recipient via BSB and account number")
+def pay_account(
+    data: AccountPaymentRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = TransactionService(db)
+    return service.pay_account(current_user, data)
 
 
 @router.post("/transfer", response_model=list[TransactionResponse], summary="Transfer money between your accounts")

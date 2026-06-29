@@ -11,10 +11,10 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ContrastIcon from '@mui/icons-material/Contrast';
 import { AppBar } from '@mui/material';
-// import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 function HeaderBar() {
-    // const { user, logout } = useAuth();
+    const { user, logout } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const navigate = useNavigate();
@@ -39,9 +39,9 @@ function HeaderBar() {
         navigate('/dashboard');
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         handleMenuClose();
-        // logout();
+        await logout();
         navigate('/login');
     };
 
@@ -74,7 +74,7 @@ function HeaderBar() {
                 </FormGroup>
                 <Button onClick={handleMenuOpen}>
                 {/* Welcome, <strong>{user?.name || 'Customer'}</strong> */}
-                    Welcome, <strong>Customer</strong>
+                    Welcome, <strong>{user?.name || 'Customer'}</strong>
                 {isMenuOpen ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
             </Button>
             </Box>

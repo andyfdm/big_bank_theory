@@ -18,7 +18,7 @@ def lookup_payid(
     db: Session = Depends(get_db),
 ):
     service = PayIdService(db)
-    return service.lookup(data)
+    return service.lookup(current_user, data)
 
 
 @router.post("/pay", response_model=list[TransactionResponse], summary="Pay a recipient via PayID")

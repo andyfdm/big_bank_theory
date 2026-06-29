@@ -6,7 +6,14 @@ from sqlalchemy.orm import Session
 from app.models.account import Account
 from app.models.transaction import Transaction, TransactionType
 from app.models.user import User
-from app.schemas.transaction import DepositRequest, SpendRequest, TransferRequest, WithdrawRequest
+from app.schemas.transaction import (
+    AccountPaymentRequest,
+    DepositRequest,
+    SpendRequest,
+    TransferRequest,
+    WithdrawRequest,
+)
+from app.services.account_service import normalize_bsb
 
 
 class TransactionService:
@@ -178,6 +185,77 @@ class TransactionService:
             account_id=to_account.id,
             amount=data.amount,
             description=data.description,
+            transaction_type=TransactionType.TRANSFER_IN,
+            related_account_id=from_account.id,
+        )
+        self.db.add(out_transaction)
+        self.db.add(in_transaction)
+        self.db.commit()
+        self.db.refresh(out_transaction)
+        self.db.refresh(in_transaction)
+        return [out_transaction, in_transaction]
+
+    def pay_account(self, user: User, data: AccountPaymentRequest) -> list[Transaction]:
+        if data.amount <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Amount must be greater than zero",
+            )
+
+        bsb = normalize_bsb(data.bsb)
+        account_number = data.account_number.replace(" ", "")
+
+        from_account = (
+            self.db.query(Account)
+            .filter(Account.id == data.from_account_id, Account.user_id == user.id)
+            .first()
+        )
+        if not from_account:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Source account not found",
+            )
+
+        to_account = (
+            self.db.query(Account)
+            .filter(Account.bsb == bsb, Account.account_number == account_number)
+            .first()
+        )
+        if not to_account:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No account found with this BSB and account number",
+            )
+        if to_account.user_id == user.id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot pay to your own account",
+            )
+        if to_account.id == from_account.id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot pay to the same account",
+            )
+        if from_account.balance < data.amount:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Insufficient funds",
+            )
+
+        from_account.balance -= data.amount
+        to_account.balance += data.amount
+
+        out_transaction = Transaction(
+            account_id=from_account.id,
+            amount=-data.amount,
+            description=f"Payment to {account_number}: {data.description}",
+            transaction_type=TransactionType.TRANSFER_OUT,
+            related_account_id=to_account.id,
+        )
+        in_transaction = Transaction(
+            account_id=to_account.id,
+            amount=data.amount,
+            description=f"Payment received: {data.description}",
             transaction_type=TransactionType.TRANSFER_IN,
             related_account_id=from_account.id,
         )

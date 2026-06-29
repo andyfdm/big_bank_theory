@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, Field, ValidationInfo, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
 from app.models.account import AccountType
 
@@ -16,7 +16,7 @@ class AccountCreate(BaseModel):
         account_type = info.data.get("account_type")
         if account_type == AccountType.SAVINGS:
             if value is None:
-                raise ValueError("Interest rate is required for savings accounts")
+                return Decimal("2.50")
             if value < 0:
                 raise ValueError("Interest rate cannot be negative")
         elif value is not None:
@@ -37,5 +37,20 @@ class AccountResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class AccountLookupRequest(BaseModel):
+    bsb: str = Field(min_length=6, max_length=7)
+    account_number: str = Field(min_length=6, max_length=6, pattern=r"^\d{6}$")
+
+
+class AccountLookupResponse(BaseModel):
+    recipient_name: str
+    bsb: str
+    account_number: str
+    account_type: str
+    account_id: int
+
+
 class PayIdUpdate(BaseModel):
-    phone_number: str = Field(min_length=8, max_length=20, pattern=r"^\+?\d+$")
+    model_config = ConfigDict(populate_by_name=True)
+
+    phone_number: str = Field(min_length=8, max_length=20, pattern=r"^\+?\d+$", alias="phone")

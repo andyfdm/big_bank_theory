@@ -14,7 +14,7 @@ class PayIdService:
     def __init__(self, db: Session):
         self.db = db
 
-    def lookup(self, data: PayIdLookupRequest) -> dict:
+    def lookup(self, user: User, data: PayIdLookupRequest) -> dict:
         account = (
             self.db.query(Account)
             .options(joinedload(Account.user))
@@ -26,10 +26,16 @@ class PayIdService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="No account linked to this PayID phone number",
             )
+        if account.user_id == user.id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot pay to your own account",
+            )
         return {
-            "phone_number": data.phone_number,
+            "phone": data.phone_number,
             "recipient_name": account.user.full_name,
             "account_id": account.id,
+            "account_type": account.account_type.value,
         }
 
     def pay(self, user: User, data: PayIdPaymentRequest) -> list[Transaction]:
@@ -69,6 +75,11 @@ class PayIdService:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Cannot pay to the same account",
+            )
+        if to_account.user_id == user.id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot pay to your own account",
             )
 
         from_account.balance -= data.amount

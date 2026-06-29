@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Box,
@@ -9,16 +9,14 @@ import {
   Alert,
   CircularProgress,
   Avatar,
-  Link as MuiLink
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
-// import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 function Profile() {
-  // const { user, updateProfile, logout } = useAuth();
-  const user = {}
+  const { user, updateProfile, loading: authLoading } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -29,6 +27,15 @@ function Profile() {
     phone: user?.phone || '',
     address: user?.address || '123 Maple Street, Sydney, NSW, 2000'
   });
+
+  useEffect(() => {
+    setFormData({
+      name: user?.name || '',
+      email: user?.email || '',
+      phone: user?.phone || '',
+      address: user?.address || '123 Maple Street, Sydney, NSW, 2000',
+    });
+  }, [user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,12 +57,14 @@ function Profile() {
         return;
       }
 
-      const result = updateProfile(formData);
-      
+      const result = await updateProfile(formData);
+
       if (result.success) {
         setSuccess('Profile updated successfully');
         setIsEditing(false);
         setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(result.error || 'Failed to update profile');
       }
     } catch (err) {
       setError(err.message || 'Failed to update profile');
@@ -64,10 +73,12 @@ function Profile() {
     }
   };
 
+  const memberSince = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString('en-AU', { month: 'long', year: 'numeric' })
+    : 'January 2020';
+
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
-
-      {/* Title */}
       <Box sx={{ textAlign: 'center', mb: 4, mt: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>Profile settings</Typography>
         <Typography variant="body2" sx={{ color: '#999' }}>Manage your personal information and security</Typography>
@@ -76,9 +87,7 @@ function Profile() {
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 3 }}>{success}</Alert>}
 
-      {/* Profile Card */}
       <Card sx={{ p: { xs: 2, md: 4 }, mb: 3, border: '1px solid #f0f0f0', borderRadius: '12px' }}>
-        {/* User Info Section */}
         <Box sx={{ textAlign: 'center', mb: 4 }}>
           <Avatar
             sx={{
@@ -93,10 +102,9 @@ function Profile() {
             {user?.name?.charAt(0) || 'U'}
           </Avatar>
           <Typography variant="h6" sx={{ fontWeight: 700 }}>{user?.name}</Typography>
-          <Typography variant="caption" sx={{ color: '#999' }}>Member since January 2020</Typography>
+          <Typography variant="caption" sx={{ color: '#999' }}>Member since {memberSince}</Typography>
         </Box>
 
-        {/* Edit Button */}
         {!isEditing && (
           <Box sx={{ textAlign: 'right', mb: 3 }}>
             <Button
@@ -104,14 +112,27 @@ function Profile() {
               onClick={() => setIsEditing(true)}
               variant="outlined"
               size="small"
+              disabled={authLoading}
             >
               Edit
             </Button>
           </Box>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSave}>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="body2" sx={{ color: '#999', mb: 1 }}>Full name</Typography>
+            <TextField
+              fullWidth
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              disabled={!isEditing || loading}
+              variant={isEditing ? "outlined" : "standard"}
+              inputProps={{ style: { fontSize: '16px' } }}
+            />
+          </Box>
+
           <Box sx={{ mb: 3 }}>
             <Typography variant="body2" sx={{ color: '#999', mb: 1 }}>Email</Typography>
             <TextField
