@@ -17,7 +17,9 @@ class UserResponse(BaseModel):
     @classmethod
     def from_user(cls, user: User) -> "UserResponse":
         return cls(
-            name=user.full_name,
+            # name=user.full_name,
+            first_name = user.first_name,
+            last_name = user.last_name,
             email=user.email,
             phone=user.phone,
             address=user.address,

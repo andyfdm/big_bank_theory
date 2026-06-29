@@ -33,7 +33,7 @@ class PayIdService:
             )
         return {
             "phone": data.phone_number,
-            "recipient_name": account.user.full_name,
+            "recipient_name": account.user.first_name + " " + account.user.last_name,
             "account_id": account.id,
             "account_type": account.account_type.value,
         }

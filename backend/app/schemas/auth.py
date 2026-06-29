@@ -7,7 +7,8 @@ from app.utils.security import validate_password
 class RegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8)
-    name: str = Field(min_length=1, max_length=255)
+    first_name: str = Field(min_length=1, max_length=255)
+    last_name: str = Field(min_length=1, max_length=255)
     phone: str | None = Field(default=None, max_length=20)
 
     @field_validator("password")
