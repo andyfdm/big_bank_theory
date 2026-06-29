@@ -39,6 +39,16 @@ class TransferRequest(BaseModel):
     description: str = Field(min_length=1, max_length=500, alias="for")
 
 
+class AccountPaymentRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    from_account_id: int
+    bsb: str = Field(min_length=6, max_length=7)
+    account_number: str = Field(min_length=6, max_length=6, pattern=r"^\d{6}$")
+    amount: Decimal = Field(gt=0)
+    description: str = Field(min_length=1, max_length=500, alias="for")
+
+
 class TransactionResponse(BaseModel):
     id: int
     account_id: int

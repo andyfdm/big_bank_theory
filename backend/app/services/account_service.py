@@ -2,12 +2,16 @@ import random
 from decimal import Decimal
 
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.config import settings
 from app.models.account import Account, AccountType
 from app.models.user import User
-from app.schemas.account import AccountCreate
+from app.schemas.account import AccountCreate, AccountLookupRequest
+
+
+def normalize_bsb(bsb: str) -> str:
+    return bsb.replace(" ", "").replace("-", "")
 
 
 class AccountService:
@@ -102,3 +106,32 @@ class AccountService:
         self.db.commit()
         self.db.refresh(account)
         return account
+
+    def lookup_account(self, user: User, data: AccountLookupRequest) -> dict:
+        bsb = normalize_bsb(data.bsb)
+        account_number = data.account_number.replace(" ", "")
+
+        account = (
+            self.db.query(Account)
+            .options(joinedload(Account.user))
+            .filter(Account.bsb == bsb, Account.account_number == account_number)
+            .first()
+        )
+        if not account:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No account found with this BSB and account number",
+            )
+        if account.user_id == user.id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot pay to your own account",
+            )
+
+        return {
+            "recipient_name": account.user.full_name,
+            "bsb": account.bsb,
+            "account_number": account.account_number,
+            "account_type": account.account_type.value,
+            "account_id": account.id,
+        }

@@ -22,6 +22,7 @@ export const accountsApi = {
   create: (data) => api.post('/accounts', data),
   delete: (accountId) => api.delete(`/accounts/${accountId}`),
   setPayId: (accountId) => api.put(`/accounts/${accountId}/payid`),
+  lookup: (data) => api.post('/accounts/lookup', data),
 };
 
 export const transactionsApi = {
@@ -32,6 +33,7 @@ export const transactionsApi = {
   deposit: (data) => api.post('/transactions/deposit', data),
   withdraw: (data) => api.post('/transactions/withdraw', data),
   transfer: (data) => api.post('/transactions/transfer', data),
+  payAccount: (data) => api.post('/transactions/pay-account', data),
 };
 
 export const payIdApi = {

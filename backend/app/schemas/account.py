@@ -37,6 +37,19 @@ class AccountResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class AccountLookupRequest(BaseModel):
+    bsb: str = Field(min_length=6, max_length=7)
+    account_number: str = Field(min_length=6, max_length=6, pattern=r"^\d{6}$")
+
+
+class AccountLookupResponse(BaseModel):
+    recipient_name: str
+    bsb: str
+    account_number: str
+    account_type: str
+    account_id: int
+
+
 class PayIdUpdate(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 

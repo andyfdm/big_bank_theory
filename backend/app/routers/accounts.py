@@ -3,11 +3,21 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.user import User
-from app.schemas.account import AccountCreate, AccountResponse
+from app.schemas.account import AccountCreate, AccountLookupRequest, AccountLookupResponse, AccountResponse
 from app.services.account_service import AccountService
 from app.utils.security import get_current_user
 
 router = APIRouter(prefix="/accounts", tags=["Accounts"])
+
+
+@router.post("/lookup", response_model=AccountLookupResponse, summary="Look up a recipient account by BSB and account number")
+def lookup_account(
+    data: AccountLookupRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = AccountService(db)
+    return service.lookup_account(current_user, data)
 
 
 @router.get("/{account_id}", response_model=AccountResponse, summary="Get a single account")
