@@ -1,10 +1,37 @@
-import { Dialog, DialogContent, Box, Typography, IconButton, FormControl, Select, MenuItem, Button } from "@mui/material";
+import { Dialog, DialogContent, Box, Typography, IconButton, FormControl, Select, MenuItem, Button, Alert, CircularProgress } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close'
 import { useState } from "react";
+import { accountsApi } from "../services/bankingApi";
+import { getErrorMessage } from "../services/api";
 
-function CreateAccountPopup({open, onClose}) {
+function CreateAccountPopup({ open, onClose, onAccountCreated }) {
     const [accountType, setAccountType] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
+    const handleCreate = async () => {
+        if (!accountType) {
+            setError('Please select an account type');
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+        try {
+            const payload = { account_type: accountType };
+            if (accountType === 'savings') {
+                payload.interest_rate = 2.5;
+            }
+            await accountsApi.create(payload);
+            setAccountType('');
+            onAccountCreated?.();
+            onClose();
+        } catch (err) {
+            setError(getErrorMessage(err));
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <Dialog
@@ -30,6 +57,8 @@ function CreateAccountPopup({open, onClose}) {
                     </IconButton>
                 </Box>
 
+                {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
                 {/* form content */}
                 <Typography mb={1}>Account type</Typography>
                 <FormControl sx={{width:300}}>
@@ -37,6 +66,7 @@ function CreateAccountPopup({open, onClose}) {
                         value={accountType}
                         displayEmpty
                         onChange={(e) => setAccountType(e.target.value)}
+                        disabled={loading}
                         renderValue={(selected) => {
                         if (!selected) {
                             return <Typography color="text.secondary">Select</Typography>;
@@ -57,6 +87,8 @@ function CreateAccountPopup({open, onClose}) {
                 <Button
                     fullWidth
                     variant="contained"
+                    onClick={handleCreate}
+                    disabled={loading}
                     sx={{
                     mt:5,
                     textTransform: "none",
@@ -65,7 +97,7 @@ function CreateAccountPopup({open, onClose}) {
                     "&:hover": { bgcolor: "#6fb1b8" }
                     }}
                 >
-                    Add account
+                    {loading ? <CircularProgress size={22} color="inherit" /> : 'Add account'}
                 </Button>
 
             </DialogContent>

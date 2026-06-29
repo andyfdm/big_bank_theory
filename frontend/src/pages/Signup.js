@@ -9,7 +9,7 @@ import {
   CircularProgress,
   Link as MuiLink
 } from '@mui/material';
-// import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import './auth.css';
 
 function Signup() {
@@ -22,7 +22,7 @@ function Signup() {
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  // const { signup, loading } = useAuth();
+  const { signup, loading } = useAuth();
 
   const handleChange = (e) => {
     setFormData({
@@ -45,8 +45,8 @@ function Signup() {
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters');
       return;
     }
 
@@ -92,7 +92,7 @@ function Signup() {
             onChange={handleChange}
             margin="normal"
             variant="outlined"
-            // disabled={loading}
+            disabled={loading}
             placeholder="John Doe"
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -109,7 +109,7 @@ function Signup() {
             onChange={handleChange}
             margin="normal"
             variant="outlined"
-            // disabled={loading}
+            disabled={loading}
             placeholder="your@email.com"
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -125,7 +125,7 @@ function Signup() {
             onChange={handleChange}
             margin="normal"
             variant="outlined"
-            // disabled={loading}
+            disabled={loading}
             placeholder="+1234567890"
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -142,7 +142,7 @@ function Signup() {
             onChange={handleChange}
             margin="normal"
             variant="outlined"
-            // disabled={loading}
+            disabled={loading}
             placeholder="••••••••"
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -159,7 +159,7 @@ function Signup() {
             onChange={handleChange}
             margin="normal"
             variant="outlined"
-            // disabled={loading}
+            disabled={loading}
             placeholder="••••••••"
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -173,8 +173,7 @@ function Signup() {
             variant="contained"
             color="primary"
             type="submit"
-            // disabled={loading}
-            onClick={() => navigate('/dashboard')}
+            disabled={loading}
             sx={{
               mt: 3,
               mb: 2,
@@ -185,8 +184,7 @@ function Signup() {
               '&:hover': { backgroundColor: '#0e7490' }
             }}
           >
-            {/* {loading ? <CircularProgress size={24} /> : 'Create Account'} */}
-            Create account
+            {loading ? <CircularProgress size={24} /> : 'Create account'}
           </Button>
         </form>
 

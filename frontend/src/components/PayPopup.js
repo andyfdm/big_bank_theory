@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,13 +10,80 @@ import {
   InputAdornment,
   FormControl,
   Select,
-  MenuItem
+  MenuItem,
+  Alert,
+  CircularProgress
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { payIdApi } from "../services/bankingApi";
+import { getErrorMessage } from "../services/api";
+import { accountToSelectOption } from "../utils/formatters";
 
-function PayPopup({ open, onClose }) {
+const DEFAULT_RECIPIENTS = [
+  { label: "Mia Lee", sub: "0412937584" },
+  { label: "Alex Wong", sub: "0400000000" },
+];
+
+function PayPopup({ open, onClose, accounts = [], onPaymentComplete }) {
   const [fromAccount, setFromAccount] = useState("");
   const [toContact, setToContact] = useState("");
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const accountOptions = useMemo(
+    () => (accounts.length ? accounts.map(accountToSelectOption) : []),
+    [accounts]
+  );
+
+  const fallbackAccountOptions = [
+    {
+      id: "checking",
+      label: "Checking",
+      sub: "BSB: 123-456 Acc: 48394714",
+    },
+    {
+      id: "savings",
+      label: "Savings",
+      sub: "BSB: 987-654 Acc: 11112222",
+    },
+  ];
+
+  const fromOptions = accountOptions.length ? accountOptions : fallbackAccountOptions;
+
+  const handlePay = async () => {
+    if (!fromAccount || !toContact || !amount || !description) {
+      setError('Please complete all payment fields');
+      return;
+    }
+
+    if (!accountOptions.length) {
+      setError('No accounts available for payment');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    try {
+      await payIdApi.pay({
+        from_account_id: fromAccount.id,
+        phone_number: toContact.sub.replace(/\s/g, ''),
+        amount: Number(amount),
+        description,
+      });
+      setAmount('');
+      setDescription('');
+      setFromAccount('');
+      setToContact('');
+      onPaymentComplete?.();
+      onClose();
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Dialog
@@ -43,6 +110,8 @@ function PayPopup({ open, onClose }) {
           </IconButton>
         </Box>
 
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
         {/* FROM DROPDOWN */}
         <Typography mb={1}>From</Typography>
         <FormControl fullWidth sx={{ mb: 3 }}>
@@ -50,6 +119,7 @@ function PayPopup({ open, onClose }) {
             value={fromAccount}
             displayEmpty
             onChange={(e) => setFromAccount(e.target.value)}
+            disabled={loading}
             renderValue={(selected) => {
               if (!selected) {
                 return <Typography color="text.secondary">Select account</Typography>;
@@ -69,40 +139,16 @@ function PayPopup({ open, onClose }) {
               p: 1.5
             }}
           >
-
-            <MenuItem
-              value={{
-                label: "Checking",
-                sub: "BSB: 123-456 Acc: 48394714"
-              }}
-            >
-              <Box>
-                <Typography fontWeight={600}>Checking</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  BSB: 123-456
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Account no: 48394714
-                </Typography>
-              </Box>
-            </MenuItem>
-
-            <MenuItem
-              value={{
-                label: "Savings",
-                sub: "BSB: 987-654 Acc: 11112222"
-              }}
-            >
-              <Box>
-                <Typography fontWeight={600}>Savings</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  BSB: 987-654
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Account no: 11112222
-                </Typography>
-              </Box>
-            </MenuItem>
+            {fromOptions.map((option) => (
+              <MenuItem key={option.id} value={option}>
+                <Box>
+                  <Typography fontWeight={600}>{option.label}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {option.sub}
+                  </Typography>
+                </Box>
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
 
@@ -113,6 +159,7 @@ function PayPopup({ open, onClose }) {
             value={toContact}
             displayEmpty
             onChange={(e) => setToContact(e.target.value)}
+            disabled={loading}
             renderValue={(selected) => {
               if (!selected) {
                 return <Typography color="text.secondary">Select recipient</Typography>;
@@ -130,33 +177,16 @@ function PayPopup({ open, onClose }) {
               p: 1.5
             }}
           >
-            <MenuItem
-              value={{
-                label: "Mia Lee",
-                sub: "0412 937 584"
-              }}
-            >
-              <Box>
-                <Typography fontWeight={600}>Mia Lee</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  0412 937 584
-                </Typography>
-              </Box>
-            </MenuItem>
-
-            <MenuItem
-              value={{
-                label: "Alex Wong",
-                sub: "0400 000 000"
-              }}
-            >
-              <Box>
-                <Typography fontWeight={600}>Alex Wong</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  0400 000 000
-                </Typography>
-              </Box>
-            </MenuItem>
+            {DEFAULT_RECIPIENTS.map((recipient) => (
+              <MenuItem key={recipient.sub} value={recipient}>
+                <Box>
+                  <Typography fontWeight={600}>{recipient.label}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {recipient.sub}
+                  </Typography>
+                </Box>
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
 
@@ -165,6 +195,9 @@ function PayPopup({ open, onClose }) {
         <TextField
           fullWidth
           placeholder="0.00"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          disabled={loading}
           sx={{ mb: 3 }}
           InputProps={{
             startAdornment: (
@@ -179,6 +212,9 @@ function PayPopup({ open, onClose }) {
         <TextField
           fullWidth
           placeholder="Reason, label , etc."
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          disabled={loading}
           sx={{ mb: 4 }}
           InputProps={{
             sx: { borderRadius: "20px" }
@@ -190,6 +226,8 @@ function PayPopup({ open, onClose }) {
           <Button
             fullWidth
             variant="contained"
+            onClick={handlePay}
+            disabled={loading}
             sx={{
               textTransform: "none",
               borderRadius: 3,
@@ -197,12 +235,14 @@ function PayPopup({ open, onClose }) {
               "&:hover": { bgcolor: "#6fb1b8" }
             }}
           >
-            Pay now
+            {loading ? <CircularProgress size={22} color="inherit" /> : 'Pay now'}
           </Button>
 
           <Button
             fullWidth
             variant="outlined"
+            onClick={onClose}
+            disabled={loading}
             sx={{
               textTransform: "none",
               borderRadius: 3,
