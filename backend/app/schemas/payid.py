@@ -13,6 +13,7 @@ class PayIdLookupResponse(BaseModel):
     phone: str
     recipient_name: str
     account_id: int
+    account_type: str
 
     model_config = ConfigDict(from_attributes=True)
 

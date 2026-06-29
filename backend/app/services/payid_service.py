@@ -30,6 +30,7 @@ class PayIdService:
             "phone": data.phone_number,
             "recipient_name": account.user.full_name,
             "account_id": account.id,
+            "account_type": account.account_type.value,
         }
 
     def pay(self, user: User, data: PayIdPaymentRequest) -> list[Transaction]:

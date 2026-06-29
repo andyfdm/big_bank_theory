@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.user import User
-from app.schemas.account import AccountCreate, AccountResponse, PayIdUpdate
+from app.schemas.account import AccountCreate, AccountResponse
 from app.services.account_service import AccountService
 from app.utils.security import get_current_user
 
@@ -49,12 +49,11 @@ def delete_account(
     service.delete_account(current_user, account_id)
 
 
-@router.put("/{account_id}/payid", response_model=AccountResponse, summary="Link a PayID phone number to an account")
+@router.put("/{account_id}/payid", response_model=AccountResponse, summary="Link profile phone number as PayID to an account")
 def set_payid(
     account_id: int,
-    data: PayIdUpdate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     service = AccountService(db)
-    return service.set_payid(current_user, account_id, data)
+    return service.set_payid(current_user, account_id)

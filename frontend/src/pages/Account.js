@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Container, Grid, Box, Typography, Button, Link, Alert, CircularProgress, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import PaymentHistory from '../components/paymentHistory';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
@@ -7,6 +7,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import { accountsApi, transactionsApi } from '../services/bankingApi';
 import { getErrorMessage } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import {
     capitalizeAccountType,
     computeAccountStats,
@@ -17,28 +18,38 @@ import {
 function Account() {
     const { accountId } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [account, setAccount] = useState(null);
+    const [userAccounts, setUserAccounts] = useState([]);
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [actionError, setActionError] = useState('');
     const [actionLoading, setActionLoading] = useState(false);
-    const [payIdPhone, setPayIdPhone] = useState('');
     const [amountDialog, setAmountDialog] = useState(null);
     const [amountValue, setAmountValue] = useState('');
     const [amountDescription, setAmountDescription] = useState('');
+
+    const profilePhone = user?.phone?.trim() || '';
+    const payIdLinkedAccount = useMemo(
+        () => userAccounts.find((item) => item.payid_phone),
+        [userAccounts]
+    );
+    const isPayIdLinkedHere = Boolean(account?.payid_phone);
+    const payIdLinkedElsewhere = payIdLinkedAccount && String(payIdLinkedAccount.id) !== String(accountId);
 
     const loadAccountData = useCallback(async () => {
         setLoading(true);
         setError('');
         try {
-            const [accountResponse, transactionsResponse] = await Promise.all([
+            const [accountResponse, transactionsResponse, accountsResponse] = await Promise.all([
                 accountsApi.get(accountId),
                 transactionsApi.listByAccount(accountId),
+                accountsApi.list(),
             ]);
             setAccount(accountResponse.data);
             setTransactions(transactionsResponse.data);
-            setPayIdPhone(accountResponse.data.payid_phone || '');
+            setUserAccounts(accountsResponse.data);
         } catch (err) {
             setError(getErrorMessage(err));
         } finally {
@@ -68,14 +79,15 @@ function Account() {
     };
 
     const handleLinkPayId = async () => {
-        if (!payIdPhone) {
-            setActionError('Enter a phone number to link PayID');
+        if (!profilePhone) {
+            setActionError('Add a phone number to your profile before linking PayID');
             return;
         }
+
         setActionLoading(true);
         setActionError('');
         try {
-            await accountsApi.setPayId(accountId, { phone: payIdPhone.replace(/\s/g, '') });
+            await accountsApi.setPayId(accountId);
             await loadAccountData();
         } catch (err) {
             setActionError(getErrorMessage(err));
@@ -114,6 +126,54 @@ function Account() {
         } finally {
             setActionLoading(false);
         }
+    };
+
+    const renderPayIdSection = () => {
+        if (isPayIdLinkedHere) {
+            return (
+                <Alert severity="success" sx={{ mt: 3 }}>
+                    PayID linked to this account: {account.payid_phone}
+                </Alert>
+            );
+        }
+
+        if (!profilePhone) {
+            return (
+                <Alert severity="info" sx={{ mt: 3 }}>
+                    Add a phone number in your{' '}
+                    <Link component={RouterLink} to="/profile" sx={{ color: 'inherit', fontWeight: 600 }}>
+                        profile
+                    </Link>{' '}
+                    to link PayID to an account.
+                </Alert>
+            );
+        }
+
+        if (payIdLinkedElsewhere) {
+            return (
+                <Box sx={{ mt: 3 }}>
+                    <Alert severity="warning" sx={{ mb: 2 }}>
+                        PayID ({payIdLinkedAccount.payid_phone}) is linked to your{' '}
+                        {capitalizeAccountType(payIdLinkedAccount.account_type)} account. You can only have one PayID
+                        account at a time. Linking here will move PayID to this account.
+                    </Alert>
+                    <Button variant="contained" onClick={handleLinkPayId} disabled={actionLoading}>
+                        {actionLoading ? <CircularProgress size={20} color="inherit" /> : 'Move PayID to this account'}
+                    </Button>
+                </Box>
+            );
+        }
+
+        return (
+            <Box sx={{ mt: 3 }}>
+                <Typography variant="body2" sx={{ mb: 2, opacity: 0.9 }}>
+                    Link your profile phone number ({profilePhone}) as PayID for this account.
+                </Typography>
+                <Button variant="contained" onClick={handleLinkPayId} disabled={actionLoading}>
+                    {actionLoading ? <CircularProgress size={20} color="inherit" /> : 'Link PayID to account'}
+                </Button>
+            </Box>
+        );
     };
 
     if (loading) {
@@ -201,18 +261,7 @@ function Account() {
                         </Button>
                     </Box>
 
-                    <Box sx={{ mt: 3, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-                        <TextField
-                            label="Link PayID phone"
-                            value={payIdPhone}
-                            onChange={(e) => setPayIdPhone(e.target.value)}
-                            size="small"
-                            sx={{ bgcolor: '#fff', borderRadius: 1, minWidth: 240 }}
-                        />
-                        <Button variant="contained" onClick={handleLinkPayId} disabled={actionLoading}>
-                            Link PayID
-                        </Button>
-                    </Box>
+                    {renderPayIdSection()}
                 </Box>
 
                 <Box sx={{

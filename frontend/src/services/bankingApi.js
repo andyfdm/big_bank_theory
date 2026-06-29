@@ -21,7 +21,7 @@ export const accountsApi = {
   get: (accountId) => api.get(`/accounts/${accountId}`),
   create: (data) => api.post('/accounts', data),
   delete: (accountId) => api.delete(`/accounts/${accountId}`),
-  setPayId: (accountId, data) => api.put(`/accounts/${accountId}/payid`, data),
+  setPayId: (accountId) => api.put(`/accounts/${accountId}/payid`),
 };
 
 export const transactionsApi = {
