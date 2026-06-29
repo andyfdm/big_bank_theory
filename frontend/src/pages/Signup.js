@@ -14,7 +14,8 @@ import './auth.css';
 
 function Signup() {
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -35,7 +36,7 @@ function Signup() {
     e.preventDefault();
     setError('');
 
-    if (!formData.name || !formData.email || !formData.password || !formData.phone) {
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.phone) {
       setError('Please fill in all fields');
       return;
     }
@@ -51,7 +52,8 @@ function Signup() {
     }
 
     const result = await signup({
-      name: formData.name,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
       email: formData.email,
       password: formData.password,
       phone: formData.phone
@@ -86,8 +88,24 @@ function Signup() {
         <form onSubmit={handleSubmit}>
           <TextField
             fullWidth
-            label="Full Name"
-            name="name"
+            label="First Name"
+            name="firstNmae"
+            value={formData.name}
+            onChange={handleChange}
+            margin="normal"
+            variant="outlined"
+            // disabled={loading}
+            placeholder="John Doe"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '8px'
+              }
+            }}
+          />
+          <TextField
+            fullWidth
+            label="Last Name"
+            name="lastName"
             value={formData.name}
             onChange={handleChange}
             margin="normal"
