@@ -24,8 +24,7 @@ function Profile() {
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
-    phone: user?.phone || '',
-    address: user?.address || '123 Maple Street, Sydney, NSW, 2000'
+    phone: user?.phone || ''
   });
 
   useEffect(() => {
@@ -161,19 +160,6 @@ function Profile() {
           </Box>
 
           <Box sx={{ mb: 3 }}>
-            <Typography variant="body2" sx={{ color: '#999', mb: 1 }}>Address</Typography>
-            <TextField
-              fullWidth
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              disabled={!isEditing || loading}
-              variant={isEditing ? "outlined" : "standard"}
-              inputProps={{ style: { fontSize: '16px' } }}
-            />
-          </Box>
-
-          <Box sx={{ mb: 3 }}>
             <Typography variant="body2" sx={{ color: '#999', mb: 1 }}>Password</Typography>
             <TextField
               fullWidth
@@ -205,8 +191,7 @@ function Profile() {
                   setFormData({
                     name: user?.name || '',
                     email: user?.email || '',
-                    phone: user?.phone || '',
-                    address: user?.address || ''
+                    phone: user?.phone || ''
                   });
                 }}
                 disabled={loading}
