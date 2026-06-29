@@ -86,10 +86,17 @@ export function AuthProvider({ children }) {
     }
   }, [persistSession]);
 
-  const signup = useCallback(async ({ name, email, password, phone }) => {
+  const signup = useCallback(async ({ firstName, lastName, email, password, phone }) => {
     setLoading(true);
     try {
-      await authApi.register({ name, email, password, phone });
+      await authApi.register({
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        password,
+        phone,
+      });
+      const name = `${firstName} ${lastName}`.trim();
       sessionStorage.setItem(PENDING_EMAIL_KEY, email);
       sessionStorage.setItem(PENDING_USER_KEY, JSON.stringify({ email, name, phone }));
       setPendingEmail(email);
