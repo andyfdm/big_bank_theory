@@ -89,13 +89,13 @@ function Signup() {
           <TextField
             fullWidth
             label="First Name"
-            name="firstNmae"
-            value={formData.name}
+            name="firstName"
+            value={formData.firstName}
             onChange={handleChange}
             margin="normal"
             variant="outlined"
-            // disabled={loading}
-            placeholder="John Doe"
+            disabled={loading}
+            placeholder="John"
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: '8px'
@@ -106,12 +106,12 @@ function Signup() {
             fullWidth
             label="Last Name"
             name="lastName"
-            value={formData.name}
+            value={formData.lastName}
             onChange={handleChange}
             margin="normal"
             variant="outlined"
             disabled={loading}
-            placeholder="John Doe"
+            placeholder="Doe"
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: '8px'
