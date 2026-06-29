@@ -34,7 +34,9 @@ class AuthService:
         verification = VerificationCode(
             email=data.email,
             code=code,
-            full_name=data.name,
+            # full_name=data.name,
+            first_name=data.first_name,
+            last_name=data.last_name,
             phone=data.phone,
             password_hash=hash_password(data.password),
             expires_at=self.email_service.get_code_expiry(),
@@ -77,7 +79,9 @@ class AuthService:
         user = User(
             email=verification.email,
             password_hash=verification.password_hash,
-            full_name=verification.full_name,
+            # full_name=verification.full_name,
+            first_name=verification.first_name,
+            last_name=verification.last_name,
             phone=verification.phone,
             is_verified=True,
         )

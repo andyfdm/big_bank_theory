@@ -129,7 +129,7 @@ class AccountService:
             )
 
         return {
-            "recipient_name": account.user.full_name,
+            "recipient_name": account.user.first_name + " " + account.user.last_name,
             "bsb": account.bsb,
             "account_number": account.account_number,
             "account_type": account.account_type.value,
