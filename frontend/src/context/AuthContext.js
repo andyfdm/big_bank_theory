@@ -21,7 +21,8 @@ function readStoredUser() {
 function mapUserResponse(user) {
   if (!user) return null;
   return {
-    name: user.name,
+    firstName: user.first_name,
+    lastName: user.last_name,
     email: user.email,
     phone: user.phone || '',
     address: user.address || '',
@@ -98,7 +99,7 @@ export function AuthProvider({ children }) {
       });
       const name = `${firstName} ${lastName}`.trim();
       sessionStorage.setItem(PENDING_EMAIL_KEY, email);
-      sessionStorage.setItem(PENDING_USER_KEY, JSON.stringify({ email, name, phone }));
+      sessionStorage.setItem(PENDING_USER_KEY, JSON.stringify({ email, firstName, lastName, phone }));
       setPendingEmail(email);
       return { success: true };
     } catch (error) {

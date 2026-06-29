@@ -6,7 +6,8 @@ from app.models.user import User
 
 
 class UserResponse(BaseModel):
-    name: str
+    first_name: str
+    last_name: str
     email: EmailStr
     phone: str | None = None
     address: str | None = None
