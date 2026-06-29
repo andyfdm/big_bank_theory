@@ -10,6 +10,16 @@ from app.utils.security import get_current_user
 router = APIRouter(prefix="/accounts", tags=["Accounts"])
 
 
+@router.get("/{account_id}", response_model=AccountResponse, summary="Get a single account")
+def get_account(
+    account_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = AccountService(db)
+    return service.get_account_for_user(current_user, account_id)
+
+
 @router.get("", response_model=list[AccountResponse], summary="List all accounts for the logged-in user")
 def list_accounts(
     current_user: User = Depends(get_current_user),

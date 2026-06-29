@@ -17,6 +17,7 @@ import {
 
 function Dashboard() {
     const [payPopupOpen, setPayPopupOpen] = useState(false);
+    const [payMode, setPayMode] = useState('payid');
     const [createAccountPopupOpen, setCreateAccountPopupOpen] = useState(false);
     const [accounts, setAccounts] = useState([]);
     const [transactions, setTransactions] = useState([]);
@@ -52,12 +53,13 @@ function Dashboard() {
 
             {/* Pay Actions */}
             <Grid container spacing={3} sx={{ mb: 5, gap: 3, ml: 1, mt: 2 }}>
-                <PayCard name="Pay via account" icon="bsb" onClick={() => setPayPopupOpen(true)}/>
-                <PayCard name="Pay via PayID" icon="bsb" onClick={() => setPayPopupOpen(true)}/>
-                <PayCard name="Transfer between accounts" icon="bsb" onClick={() => setPayPopupOpen(true)}/>
+                <PayCard name="Pay via account" icon="bsb" onClick={() => { setPayMode('account'); setPayPopupOpen(true); }}/>
+                <PayCard name="Pay via PayID" icon="bsb" onClick={() => { setPayMode('payid'); setPayPopupOpen(true); }}/>
+                <PayCard name="Transfer between accounts" icon="bsb" onClick={() => { setPayMode('transfer'); setPayPopupOpen(true); }}/>
             </Grid>
             <PayPopup
                 open={payPopupOpen}
+                mode={payMode}
                 onClose={() => setPayPopupOpen(false)}
                 accounts={accounts}
                 onPaymentComplete={loadHomeData}
@@ -83,6 +85,7 @@ function Dashboard() {
                             {accountCards.map((account) => (
                                 <AccountCard
                                     key={account.key}
+                                    accountId={account.key}
                                     name={account.name}
                                     balance={account.balance}
                                     index={account.index}

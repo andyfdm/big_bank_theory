@@ -19,9 +19,6 @@ function CreateAccountPopup({ open, onClose, onAccountCreated }) {
         setError('');
         try {
             const payload = { account_type: accountType };
-            if (accountType === 'savings') {
-                payload.interest_rate = 2.5;
-            }
             await accountsApi.create(payload);
             setAccountType('');
             onAccountCreated?.();

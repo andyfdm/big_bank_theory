@@ -7,6 +7,7 @@ from app.models.token_blacklist import TokenBlacklist
 from app.models.user import User
 from app.models.verification_code import VerificationCode
 from app.schemas.auth import LoginRequest, RegisterRequest, VerifyEmailRequest
+from app.schemas.user import UserResponse
 from app.services.email_service import EmailService
 from app.utils.security import create_access_token, hash_password, verify_password
 
@@ -33,7 +34,8 @@ class AuthService:
         verification = VerificationCode(
             email=data.email,
             code=code,
-            full_name=data.full_name,
+            full_name=data.name,
+            phone=data.phone,
             password_hash=hash_password(data.password),
             expires_at=self.email_service.get_code_expiry(),
         )
@@ -76,6 +78,7 @@ class AuthService:
             email=verification.email,
             password_hash=verification.password_hash,
             full_name=verification.full_name,
+            phone=verification.phone,
             is_verified=True,
         )
         verification.is_used = True
@@ -84,7 +87,11 @@ class AuthService:
         self.db.refresh(user)
 
         token = create_access_token(user.id)
-        return {"access_token": token, "token_type": "bearer"}
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "user": UserResponse.from_user(user),
+        }
 
     def login(self, data: LoginRequest) -> dict:
         user = self.db.query(User).filter(User.email == data.email).first()
@@ -100,7 +107,11 @@ class AuthService:
             )
 
         token = create_access_token(user.id)
-        return {"access_token": token, "token_type": "bearer"}
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "user": UserResponse.from_user(user),
+        }
 
     def logout(self, token: str) -> dict:
         existing = self.db.query(TokenBlacklist).filter(TokenBlacklist.token == token).first()

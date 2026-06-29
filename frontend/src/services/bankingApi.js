@@ -7,12 +7,18 @@ export const authApi = {
   logout: () => api.post('/auth/logout'),
 };
 
+export const usersApi = {
+  getProfile: () => api.get('/users/me'),
+  updateProfile: (data) => api.put('/users/me', data),
+};
+
 export const homeApi = {
   getHome: (limit = 50) => api.get('/home', { params: { limit } }),
 };
 
 export const accountsApi = {
   list: () => api.get('/accounts'),
+  get: (accountId) => api.get(`/accounts/${accountId}`),
   create: (data) => api.post('/accounts', data),
   delete: (accountId) => api.delete(`/accounts/${accountId}`),
   setPayId: (accountId, data) => api.put(`/accounts/${accountId}/payid`, data),

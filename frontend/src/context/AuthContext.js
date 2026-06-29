@@ -1,5 +1,5 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { authApi } from '../services/bankingApi';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { authApi, usersApi } from '../services/bankingApi';
 import { getErrorMessage } from '../services/api';
 
 const AuthContext = createContext(null);
@@ -16,6 +16,17 @@ function readStoredUser() {
   } catch {
     return null;
   }
+}
+
+function mapUserResponse(user) {
+  if (!user) return null;
+  return {
+    name: user.name,
+    email: user.email,
+    phone: user.phone || '',
+    address: user.address || '',
+    createdAt: user.created_at,
+  };
 }
 
 export function AuthProvider({ children }) {
@@ -44,13 +55,29 @@ export function AuthProvider({ children }) {
     setPendingEmail(null);
   }, []);
 
+  const refreshProfile = useCallback(async () => {
+    if (!localStorage.getItem(TOKEN_STORAGE_KEY)) return;
+    try {
+      const { data } = await usersApi.getProfile();
+      const mappedUser = mapUserResponse(data);
+      setUser(mappedUser);
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mappedUser));
+    } catch {
+      // Ignore profile refresh errors during startup.
+    }
+  }, []);
+
+  useEffect(() => {
+    if (token) {
+      refreshProfile();
+    }
+  }, [token, refreshProfile]);
+
   const login = useCallback(async (email, password) => {
     setLoading(true);
     try {
       const { data } = await authApi.login({ email, password });
-      const storedUser = readStoredUser();
-      const name = storedUser?.email === email ? storedUser.name : email.split('@')[0];
-      persistSession(data.access_token, { email, name, phone: storedUser?.phone });
+      persistSession(data.access_token, mapUserResponse(data.user));
       return { success: true };
     } catch (error) {
       return { success: false, error: getErrorMessage(error) };
@@ -62,7 +89,7 @@ export function AuthProvider({ children }) {
   const signup = useCallback(async ({ name, email, password, phone }) => {
     setLoading(true);
     try {
-      await authApi.register({ full_name: name, email, password });
+      await authApi.register({ name, email, password, phone });
       sessionStorage.setItem(PENDING_EMAIL_KEY, email);
       sessionStorage.setItem(PENDING_USER_KEY, JSON.stringify({ email, name, phone }));
       setPendingEmail(email);
@@ -83,9 +110,7 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       const { data } = await authApi.verify({ email, code });
-      const pendingUserRaw = sessionStorage.getItem(PENDING_USER_KEY);
-      const pendingUser = pendingUserRaw ? JSON.parse(pendingUserRaw) : { email, name: email.split('@')[0] };
-      persistSession(data.access_token, pendingUser);
+      persistSession(data.access_token, mapUserResponse(data.user));
       return { success: true };
     } catch (error) {
       return { success: false, error: getErrorMessage(error) };
@@ -106,12 +131,17 @@ export function AuthProvider({ children }) {
     }
   }, [clearSession, token]);
 
-  const updateProfile = useCallback((profileData) => {
-    const updatedUser = { ...user, ...profileData };
-    setUser(updatedUser);
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
-    return { success: true };
-  }, [user]);
+  const updateProfile = useCallback(async (profileData) => {
+    try {
+      const { data } = await usersApi.updateProfile(profileData);
+      const mappedUser = mapUserResponse(data);
+      setUser(mappedUser);
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mappedUser));
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: getErrorMessage(error) };
+    }
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -126,8 +156,9 @@ export function AuthProvider({ children }) {
       verifyEmail,
       logout,
       updateProfile,
+      refreshProfile,
     }),
-    [user, token, loading, pendingEmail, login, signup, verifyEmail, logout, updateProfile]
+    [user, token, loading, pendingEmail, login, signup, verifyEmail, logout, updateProfile, refreshProfile]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

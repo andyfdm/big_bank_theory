@@ -71,7 +71,7 @@ function AppContent() {
         }
       />
       <Route
-        path="/account"
+        path="/account/:accountId"
         element={
           <PrivateRoute>
             <Account />

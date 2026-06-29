@@ -27,7 +27,7 @@ class PayIdService:
                 detail="No account linked to this PayID phone number",
             )
         return {
-            "phone_number": data.phone_number,
+            "phone": data.phone_number,
             "recipient_name": account.user.full_name,
             "account_id": account.id,
         }

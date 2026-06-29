@@ -83,6 +83,30 @@ export function computeDashboardStats(accounts, transactions) {
   ];
 }
 
+export function computeAccountStats(transactions) {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  let monthlySpending = 0;
+  let moneyIn = 0;
+  let moneyOut = 0;
+
+  transactions.forEach((transaction) => {
+    const createdAt = new Date(transaction.created_at);
+    if (createdAt < monthStart) return;
+
+    const amount = Math.abs(Number(transaction.amount));
+    if (INCOMING_TYPES.has(transaction.transaction_type)) {
+      moneyIn += amount;
+    } else {
+      moneyOut += amount;
+      monthlySpending += amount;
+    }
+  });
+
+  return { monthlySpending, moneyIn, moneyOut };
+}
+
 export function formatBsb(bsb) {
   if (!bsb || bsb.length !== 6) return bsb;
   return `${bsb.slice(0, 3)}-${bsb.slice(3)}`;

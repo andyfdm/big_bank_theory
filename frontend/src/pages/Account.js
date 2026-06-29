@@ -1,89 +1,237 @@
-import { Container, Grid, Box, Typography, Button, Link } from '@mui/material';
+import { useCallback, useEffect, useState } from 'react';
+import { Container, Grid, Box, Typography, Button, Link, Alert, CircularProgress, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import PaymentHistory from '../components/paymentHistory';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import TrendingDownIcon from '@mui/icons-material/TrendingDown'
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
+import { accountsApi, transactionsApi } from '../services/bankingApi';
+import { getErrorMessage } from '../services/api';
+import {
+    capitalizeAccountType,
+    computeAccountStats,
+    formatBsb,
+    formatTransactionForHistory,
+} from '../utils/formatters';
 
+function Account() {
+    const { accountId } = useParams();
+    const navigate = useNavigate();
+    const [account, setAccount] = useState(null);
+    const [transactions, setTransactions] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [actionError, setActionError] = useState('');
+    const [actionLoading, setActionLoading] = useState(false);
+    const [payIdPhone, setPayIdPhone] = useState('');
+    const [amountDialog, setAmountDialog] = useState(null);
+    const [amountValue, setAmountValue] = useState('');
+    const [amountDescription, setAmountDescription] = useState('');
 
-function Account(props) {
+    const loadAccountData = useCallback(async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const [accountResponse, transactionsResponse] = await Promise.all([
+                accountsApi.get(accountId),
+                transactionsApi.listByAccount(accountId),
+            ]);
+            setAccount(accountResponse.data);
+            setTransactions(transactionsResponse.data);
+            setPayIdPhone(accountResponse.data.payid_phone || '');
+        } catch (err) {
+            setError(getErrorMessage(err));
+        } finally {
+            setLoading(false);
+        }
+    }, [accountId]);
 
-    // mock data
-    const isPositive = true;
-    const change = 4;
+    useEffect(() => {
+        loadAccountData();
+    }, [loadAccountData]);
 
-    const transactions = [
-        { name: 'Salary Deposit', type: 'salary', category: 'Income', date: '9 Jun, 2026', amount: '+$2,000.00' },
-        { name: 'Woolworths', type: 'shopping', category: 'Grocery', date: '9 Jun, 2026', amount: '-$92.15' },
-        { name: 'Shell Petrol Station', type: 'fuel', category: 'Petrol', date: '8 Jun, 2026', amount: '-$51.93' },
-        { name: 'Amazon', type: 'shopping', category: 'Shopping', date: '8 Jun, 2026', amount: '-$132.97' },
-        { name: 'Transfer Mia Lee food', type: 'transfer', category: 'Income', date: '8 Jun, 2026', amount: '+$50.00' }
-    ];
+    const stats = computeAccountStats(transactions);
+    const transactionItems = transactions.map(formatTransactionForHistory);
+    const isPositive = stats.monthlySpending <= stats.moneyIn;
+
+    const handleDelete = async () => {
+        setActionLoading(true);
+        setActionError('');
+        try {
+            await accountsApi.delete(accountId);
+            navigate('/dashboard');
+        } catch (err) {
+            setActionError(getErrorMessage(err));
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleLinkPayId = async () => {
+        if (!payIdPhone) {
+            setActionError('Enter a phone number to link PayID');
+            return;
+        }
+        setActionLoading(true);
+        setActionError('');
+        try {
+            await accountsApi.setPayId(accountId, { phone: payIdPhone.replace(/\s/g, '') });
+            await loadAccountData();
+        } catch (err) {
+            setActionError(getErrorMessage(err));
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleAmountAction = async () => {
+        if (!amountValue || !amountDescription) {
+            setActionError('Enter an amount and description');
+            return;
+        }
+
+        setActionLoading(true);
+        setActionError('');
+        try {
+            const payload = {
+                account_id: Number(accountId),
+                amount: Number(amountValue),
+                for: amountDescription,
+            };
+
+            if (amountDialog === 'deposit') {
+                await transactionsApi.deposit(payload);
+            } else {
+                await transactionsApi.withdraw(payload);
+            }
+
+            setAmountDialog(null);
+            setAmountValue('');
+            setAmountDescription('');
+            await loadAccountData();
+        } catch (err) {
+            setActionError(getErrorMessage(err));
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (error || !account) {
+        return (
+            <Container maxWidth="lg" sx={{ py: 4 }}>
+                <Alert severity="error">{error || 'Account not found'}</Alert>
+            </Container>
+        );
+    }
 
     return (
         <>
-            {/* background */}
-            <Box minWidth="100%" minHeight="80%" sx={{bgcolor: "#004BBD", position: "absolute",  zIndex: -1}}></Box>
-            
-            <Container maxWidth="lg" sx={{py: 4}}>
+            <Box minWidth="100%" minHeight="80%" sx={{ bgcolor: "#004BBD", position: "absolute", zIndex: -1 }} />
 
-                <Link component={RouterLink} to="/dashboard" sx={{display: "flex", gap: 1, color: "#91D0D7", cursor: "pointer"}}>
-                    <ArrowBackIcon/>
+            <Container maxWidth="lg" sx={{ py: 4 }}>
+                <Link component={RouterLink} to="/dashboard" sx={{ display: "flex", gap: 1, color: "#91D0D7", cursor: "pointer" }}>
+                    <ArrowBackIcon />
                     Back to dashboard
                 </Link>
 
-                {/* account details */}
-                <Box sx={{color: "#F5F5F5", mb: 8, mt: 4}}>
-                    <Box sx={{mb: 4}}>
-                        <Typography variant="h4" sx={{ fontWeight: 600, mb: 1}}>Savings</Typography>
-                        <Box sx={{display: "flex", gap: 3}}>
-                            <Typography><strong>BSB:</strong> 123456</Typography>
-                            <Typography><strong>Account number:</strong> 123456</Typography>
+                {actionError && <Alert severity="error" sx={{ mt: 3 }}>{actionError}</Alert>}
+
+                <Box sx={{ color: "#F5F5F5", mb: 8, mt: 4 }}>
+                    <Box sx={{ mb: 4 }}>
+                        <Typography variant="h4" sx={{ fontWeight: 600, mb: 1 }}>
+                            {capitalizeAccountType(account.account_type)}
+                        </Typography>
+                        <Box sx={{ display: "flex", gap: 3, flexWrap: 'wrap' }}>
+                            <Typography><strong>BSB:</strong> {formatBsb(account.bsb)}</Typography>
+                            <Typography><strong>Account number:</strong> {account.account_number}</Typography>
+                            <Typography><strong>Balance:</strong> ${Number(account.balance).toFixed(2)}</Typography>
                         </Box>
                     </Box>
 
-                    {/* account money stats */}
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
-                            <Box minWidth= "100%" sx={{bgcolor: "#1F61C5", borderRadius: '12px', p:4}}>
-                                <Typography variant="h7" sx={{ fontWeight: 600}}> Monthly spending</Typography>
-                                <Typography variant="h5" sx={{ fontSize:"2rem", fontWeight: 700, mt: 1, mb: 1 }}>$1,500.00</Typography>
+                            <Box minWidth="100%" sx={{ bgcolor: "#1F61C5", borderRadius: '12px', p: 4 }}>
+                                <Typography variant="h7" sx={{ fontWeight: 600 }}> Monthly spending</Typography>
+                                <Typography variant="h5" sx={{ fontSize: "2rem", fontWeight: 700, mt: 1, mb: 1 }}>
+                                    ${stats.monthlySpending.toFixed(2)}
+                                </Typography>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                    {isPositive ? <TrendingUpIcon sx={{ fontSize: 16, color: '#22c55e'}}/> : <TrendingDownIcon sx={{ fontSize: 16, color: '#ef4444'}}/>}
+                                    {isPositive ? <TrendingUpIcon sx={{ fontSize: 16, color: '#22c55e' }} /> : <TrendingDownIcon sx={{ fontSize: 16, color: '#ef4444' }} />}
                                     <Typography variant="caption" sx={{ color: isPositive ? '#22c55e' : '#ef4444', fontWeight: 500 }}>
-                                        {change} from last month
+                                        This month
                                     </Typography>
                                 </Box>
                             </Box>
                         </Grid>
                         <Grid item xs={6}>
-                            <Box minWidth= "100%" sx={{bgcolor: "#1F61C5", borderRadius: '12px', p:3}}>
-                                <Typography variant="h7" sx={{ fontWeight: 600}}> Money in</Typography>
-                                <Typography variant="h5" sx={{ fontSize:"1.5rem", fontWeight: 500, mt: 1, color: '#22c55e'}}>+$1,500.00</Typography>
+                            <Box minWidth="100%" sx={{ bgcolor: "#1F61C5", borderRadius: '12px', p: 3 }}>
+                                <Typography variant="h7" sx={{ fontWeight: 600 }}> Money in</Typography>
+                                <Typography variant="h5" sx={{ fontSize: "1.5rem", fontWeight: 500, mt: 1, color: '#22c55e' }}>
+                                    +${stats.moneyIn.toFixed(2)}
+                                </Typography>
                             </Box>
                         </Grid>
                         <Grid item xs={6}>
-                            <Box minWidth= "100%" sx={{bgcolor: "#1F61C5", borderRadius: '12px', p:3}}>
-                                <Typography variant="h7" sx={{ fontWeight: 600}}> Money out</Typography>
-                                <Typography variant="h5" sx={{ fontSize:"1.5rem", fontWeight: 500, mt: 1, color: '#ef4444' }}>-$1,500.00</Typography>
+                            <Box minWidth="100%" sx={{ bgcolor: "#1F61C5", borderRadius: '12px', p: 3 }}>
+                                <Typography variant="h7" sx={{ fontWeight: 600 }}> Money out</Typography>
+                                <Typography variant="h5" sx={{ fontSize: "1.5rem", fontWeight: 500, mt: 1, color: '#ef4444' }}>
+                                    -${stats.moneyOut.toFixed(2)}
+                                </Typography>
                             </Box>
                         </Grid>
                     </Grid>
+
+                    <Box sx={{ display: 'flex', gap: 2, mt: 3, flexWrap: 'wrap' }}>
+                        <Button variant="contained" onClick={() => setAmountDialog('deposit')} disabled={actionLoading}>
+                            Deposit
+                        </Button>
+                        <Button variant="outlined" sx={{ color: '#fff', borderColor: '#fff' }} onClick={() => setAmountDialog('withdraw')} disabled={actionLoading}>
+                            Withdraw
+                        </Button>
+                        <Button variant="outlined" sx={{ color: '#fff', borderColor: '#fff' }} onClick={handleDelete} disabled={actionLoading}>
+                            Delete account
+                        </Button>
+                    </Box>
+
+                    <Box sx={{ mt: 3, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+                        <TextField
+                            label="Link PayID phone"
+                            value={payIdPhone}
+                            onChange={(e) => setPayIdPhone(e.target.value)}
+                            size="small"
+                            sx={{ bgcolor: '#fff', borderRadius: 1, minWidth: 240 }}
+                        />
+                        <Button variant="contained" onClick={handleLinkPayId} disabled={actionLoading}>
+                            Link PayID
+                        </Button>
+                    </Box>
                 </Box>
 
-                {/* account transaction history */}
-                    <Box sx={{
-                        borderRadius: '12px',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
-                        border: '1px solid #f0f0f0',
-                        backgroundColor: '#FFFFFF',
-                        mb: 5
-                    }}>
-                        <Box sx={{borderBottom: '1px solid #f0f0f0', pb: 2, padding: 3}}>
-                            <Typography variant="h6" sx={{ fontWeight: 700 }}>Recent Transactions</Typography>
-                            <Typography variant="caption" sx={{ color: '#999' }}>All Accounts</Typography>
+                <Box sx={{
+                    borderRadius: '12px',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                    border: '1px solid #f0f0f0',
+                    backgroundColor: '#FFFFFF',
+                    mb: 5
+                }}>
+                    <Box sx={{ borderBottom: '1px solid #f0f0f0', pb: 2, padding: 3 }}>
+                        <Typography variant="h6" sx={{ fontWeight: 700 }}>Recent Transactions</Typography>
+                        <Typography variant="caption" sx={{ color: '#999' }}>{capitalizeAccountType(account.account_type)}</Typography>
+                    </Box>
+                    {transactionItems.length === 0 ? (
+                        <Box sx={{ p: 3 }}>
+                            <Typography color="text.secondary">No transactions yet</Typography>
                         </Box>
-                        {transactions.map((transaction, index) => (
+                    ) : (
+                        transactionItems.map((transaction, index) => (
                             <PaymentHistory
                                 key={index}
                                 name={transaction.name}
@@ -92,12 +240,38 @@ function Account(props) {
                                 date={transaction.date}
                                 amount={transaction.amount}
                             />
-                        ))}
-                    </Box>
+                        ))
+                    )}
+                </Box>
             </Container>
-        </>
-    )
 
+            <Dialog open={Boolean(amountDialog)} onClose={() => setAmountDialog(null)} maxWidth="xs" fullWidth>
+                <DialogTitle>{amountDialog === 'deposit' ? 'Deposit funds' : 'Withdraw funds'}</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        fullWidth
+                        label="Amount"
+                        value={amountValue}
+                        onChange={(e) => setAmountValue(e.target.value)}
+                        margin="normal"
+                    />
+                    <TextField
+                        fullWidth
+                        label="For"
+                        value={amountDescription}
+                        onChange={(e) => setAmountDescription(e.target.value)}
+                        margin="normal"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setAmountDialog(null)}>Cancel</Button>
+                    <Button variant="contained" onClick={handleAmountAction} disabled={actionLoading}>
+                        {actionLoading ? <CircularProgress size={20} /> : 'Confirm'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </>
+    );
 }
 
-export default Account
+export default Account;

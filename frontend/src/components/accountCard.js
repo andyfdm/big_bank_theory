@@ -54,7 +54,7 @@ function AccountCard(props) {
         const cardColor = getColorForAccount(props.name, props.index);
         return (
             <Box className="account-card" 
-            onClick={() => navigate('/account')}
+            onClick={() => navigate(`/account/${props.accountId}`)}
             sx={{
                 minWidth: 200,
                 background: cardColor,
