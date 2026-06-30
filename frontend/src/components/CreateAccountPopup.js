@@ -81,6 +81,8 @@ function CreateAccountPopup({ open, onClose, onAccountCreated }) {
                     </Select>
                 </FormControl>
 
+                {accountType === "savings" && (<Typography sx={{mt: 2}}><strong>Interest rate:</strong> 2.5% p/a</Typography>)}
+
                 <Button
                     fullWidth
                     variant="contained"

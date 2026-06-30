@@ -17,17 +17,12 @@ class UserResponse(BaseModel):
 
     @classmethod
     def from_user(cls, user: User) -> "UserResponse":
-        return cls(
-            name=f"{user.first_name} {user.last_name}".strip(),
-            email=user.email,
-            phone=user.phone,
-            address=user.address,
-            created_at=user.created_at,
-        )
+        return cls.model_validate(user)
 
 
 class ProfileUpdateRequest(BaseModel):
-    name: str | None = Field(default=None, min_length=1, max_length=255)
+    first_name: str | None = Field(default=None, min_length=1, max_length=255)
+    last_name: str | None = Field(default=None, min_length=1, max_length=255)
     email: EmailStr | None = None
     phone: str | None = Field(default=None, max_length=20)
     address: str | None = Field(default=None, max_length=500)

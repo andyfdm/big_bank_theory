@@ -212,16 +212,15 @@ function Account() {
                         <Box sx={{ display: "flex", gap: 3, flexWrap: 'wrap' }}>
                             <Typography><strong>BSB:</strong> {formatBsb(account.bsb)}</Typography>
                             <Typography><strong>Account number:</strong> {account.account_number}</Typography>
-                            <Typography><strong>Balance:</strong> ${Number(account.balance).toFixed(2)}</Typography>
                         </Box>
                     </Box>
 
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Box minWidth="100%" sx={{ bgcolor: "#1F61C5", borderRadius: '12px', p: 4 }}>
-                                <Typography variant="h7" sx={{ fontWeight: 600 }}> Monthly spending</Typography>
+                                <Typography variant="h7" sx={{ fontWeight: 600 }}>Balance</Typography>
                                 <Typography variant="h5" sx={{ fontSize: "2rem", fontWeight: 700, mt: 1, mb: 1 }}>
-                                    ${stats.monthlySpending.toFixed(2)}
+                                    ${Number(account.balance).toFixed(2)}
                                 </Typography>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                     {isPositive ? <TrendingUpIcon sx={{ fontSize: 16, color: '#22c55e' }} /> : <TrendingDownIcon sx={{ fontSize: 16, color: '#ef4444' }} />}
