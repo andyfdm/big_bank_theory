@@ -18,7 +18,6 @@ function HeaderBar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const navigate = useNavigate();
-    // const location = useLocation();
 
     const handleMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
@@ -73,8 +72,7 @@ function HeaderBar() {
                     />
                 </FormGroup>
                 <Button onClick={handleMenuOpen}>
-                {/* Welcome, <strong>{user?.name || 'Customer'}</strong> */}
-                    Welcome, <strong>{user?.name || 'Customer'}</strong>
+                Welcome, <strong>{user?.firstName || 'Customer'}</strong>
                 {isMenuOpen ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
             </Button>
             </Box>

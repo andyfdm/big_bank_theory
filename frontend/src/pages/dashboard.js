@@ -126,26 +126,37 @@ function Dashboard() {
                         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
                         border: '1px solid #f0f0f0'
                     }}>
-                        <Box sx={{borderBottom: '1px solid #f0f0f0', pb: 2, padding: 3}}>
-                            <Typography variant="h6" sx={{ fontWeight: 700 }}>Recent Transactions</Typography>
-                            <Typography variant="caption" sx={{ color: '#999' }}>All Accounts</Typography>
-                        </Box>
-                        {loading ? (
-                            <Box sx={{ p: 3 }}>
-                                <CircularProgress size={24} />
-                            </Box>
-                        ) : (
-                            transactionItems.map((transaction, index) => (
-                                <PaymentHistory
-                                    key={index}
-                                    name={transaction.name}
-                                    type={transaction.type}
-                                    category={transaction.category}
-                                    date={transaction.date}
-                                    amount={transaction.amount}
-                                />
-                            ))
-                        )}
+                    <Box sx={{ borderBottom: '1px solid #f0f0f0', pb: 2, padding: 3 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                        Recent Transactions
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#999' }}>
+                        All Accounts
+                    </Typography>
+                    </Box>
+
+                    {loading ? (
+                    <Box sx={{ p: 3 }}>
+                        <CircularProgress size={24} />
+                    </Box>
+                    ) : transactionItems.length === 0 ? (
+                    <Box sx={{ p: 3 }}>
+                        <Typography variant="body2" sx={{ color: '#999', textAlign: 'center' }}>
+                        No recent transactions
+                        </Typography>
+                    </Box>
+                    ) : (
+                    transactionItems.map((transaction, index) => (
+                        <PaymentHistory
+                        key={index}
+                        name={transaction.name}
+                        type={transaction.type}
+                        category={transaction.category}
+                        date={transaction.date}
+                        amount={transaction.amount}
+                        />
+                    ))
+                    )}
                     </Box>
                 </Grid>
 

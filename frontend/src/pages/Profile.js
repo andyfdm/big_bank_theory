@@ -22,16 +22,18 @@ function Profile() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [formData, setFormData] = useState({
-    name: user?.name || '',
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
     email: user?.email || '',
     phone: user?.phone || ''
   });
 
   useEffect(() => {
     setFormData({
-      name: user?.name || '',
-      email: user?.email || '',
+      firstName: user?.firstName || '',
+      lastName: user?.lastName || '',
       phone: user?.phone || '',
+      email: user?.email || '',
       address: user?.address || '123 Maple Street, Sydney, NSW, 2000',
     });
   }, [user]);
@@ -51,12 +53,17 @@ function Profile() {
     setSuccess('');
 
     try {
-      if (!formData.name || !formData.email || !formData.phone) {
+      if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
         setError('Please fill in all required fields');
         return;
       }
 
-      const result = await updateProfile(formData);
+      const result = await updateProfile({
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone: formData.phone
+      });
 
       if (result.success) {
         setSuccess('Profile updated successfully');
@@ -98,9 +105,9 @@ function Profile() {
               backgroundColor: '#1976d2'
             }}
           >
-            {user?.name?.charAt(0) || 'U'}
+            {(user?.firstName?.[0] || '') + (user?.lastName?.[0] || '') || 'U'}
           </Avatar>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>{user?.name}</Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>{user ? `${user.firstName} ${user.lastName}` : ''}</Typography>
           <Typography variant="caption" sx={{ color: '#999' }}>Member since {memberSince}</Typography>
         </Box>
 
@@ -120,11 +127,24 @@ function Profile() {
 
         <form onSubmit={handleSave}>
           <Box sx={{ mb: 3 }}>
-            <Typography variant="body2" sx={{ color: '#999', mb: 1 }}>Full name</Typography>
+            <Typography variant="body2" sx={{ color: '#999', mb: 1 }}>First name</Typography>
             <TextField
               fullWidth
-              name="name"
-              value={formData.name}
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              disabled={!isEditing || loading}
+              variant={isEditing ? "outlined" : "standard"}
+              inputProps={{ style: { fontSize: '16px' } }}
+            />
+          </Box>
+
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="body2" sx={{ color: '#999', mb: 1 }}>Last name</Typography>
+            <TextField
+              fullWidth
+              name="lastName"
+              value={formData.lastName}
               onChange={handleChange}
               disabled={!isEditing || loading}
               variant={isEditing ? "outlined" : "standard"}
@@ -189,7 +209,8 @@ function Profile() {
                 onClick={() => {
                   setIsEditing(false);
                   setFormData({
-                    name: user?.name || '',
+                    firstName: user?.firstName || '',
+                    lastName: user?.lastName || '',
                     email: user?.email || '',
                     phone: user?.phone || ''
                   });

@@ -51,6 +51,14 @@ function Signup() {
       return;
     }
 
+    if ( ! /\d/.test(formData.password)) {
+      setError('Password must contain at least one number');
+    }
+
+    if (! /^[a-zA-Z0-9]+$/.test(formData.password)) {
+      setError('Password must contain at least one special character')
+    }
+
     const result = await signup({
       firstName: formData.firstName,
       lastName: formData.lastName,
